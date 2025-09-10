@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Un-Law ⚖️ - AI Legal Document Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+      
+        .bg-animated::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+            animation: pulse-bg 4s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes pulse-bg {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 0.1; transform: scale(1.1); }
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(139, 92, 246, 0.1);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #a855f7, #c084fc);
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+        
+        .loader::before,
+        .loader::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            animation: loader-animation 2s linear infinite;
+        }
+        
+        .loader::before {
+            width: 100%;
+            height: 100%;
+            border: 4px solid transparent;
+            border-top: 4px solid #8b5cf6;
+            border-right: 4px solid #a855f7;
+        }
+        
+        .loader::after {
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+            border: 4px solid transparent;
+            border-bottom: 4px solid #c084fc;
+            border-left: 4px solid #ddd6fe;
+            animation-direction: reverse;
+            animation-duration: 1s;
+        }
+
+        @keyframes loader-animation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -12px rgba(139, 92, 246, 0.4);
+        }
+        .card-enter {
+            animation: cardEnter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes cardEnter {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .typewriter {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typewriter 3s steps(50) 1s forwards;
+            width: 0;
+        }
+
+        @keyframes typewriter {
+            to { width: 100%; }
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+            }
+        }
+
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.3);
+        }
+        .resizer {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            cursor: col-resize;
+            width: 6px;
+            z-index: 10;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .resizer::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 40px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .resizer:hover::before {
+            opacity: 1;
+        }
+
+        .resizer:hover {
+            width: 8px;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
+
+        .message-enter {
+            animation: messageSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes messageSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .thinking-dot {
+            animation: thinking 1.4s ease-in-out infinite;
+        }
+
+        .thinking-dot:nth-child(1) { animation-delay: -0.32s; }
+        .thinking-dot:nth-child(2) { animation-delay: -0.16s; }
+        .thinking-dot:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes thinking {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.3;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .fade-out {
+            animation: fadeOut 0.4s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-animated">
+
+    <header class="glass-dark border-b border-purple-500/20 p-4 flex justify-between items-center relative z-10">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center pulse-glow">
+                <span class="text-xl">⚖️</span>
+            </div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Un-Law
+            </h1>
+        </div>
+        <button id="download-btn" class="hidden btn-primary font-bold py-2 px-6 rounded-xl text-white shadow-lg">
+            <span class="flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Download Analysis</span>
+            </span>
+        </button>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-center p-4 md:p-8 relative">
+
+        <div id="upload-view" class="w-full max-w-4xl fade-in">
+            <div class="glass rounded-3xl p-12 text-center hover-lift">
+                <div class="float mb-8">
+                    <div class="w-24 h-24 mx-auto bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-6 pulse-glow">
+                        <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="text-5xl font-bold text-white mb-6 typewriter">Analyze Your Legal Document</h2>
+                <p class="text-xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+                    Upload a PDF to get an intelligent summary, comprehensive risk analysis, and expert insights powered by advanced AI.
+                </p>
+                <input type="file" id="file-upload" class="hidden" accept=".pdf">
+                <label for="file-upload" class="cursor-pointer btn-primary font-bold py-4 px-12 rounded-2xl text-white text-lg inline-block">
+                    <span class="flex items-center space-x-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <span>Choose PDF File</span>
+                    </span>
+                </label>
+                <p class="text-sm text-gray-400 mt-4">Supports PDF files up to 10MB</p>
+            </div>
+        </div>
+        
+        <div id="loading-view" class="hidden text-center fade-in">
+            <div class="loader mx-auto mb-8"></div>
+            <h3 class="text-3xl font-bold text-white mb-4">Analyzing Your Document</h3>
+            <div class="text-lg text-gray-300 space-y-2">
+                <p class="typewriter">Extracting content and understanding context...</p>
+                <div class="flex justify-center space-x-1 mt-4">
+                    <div class="w-2 h-2 bg-purple-500 rounded-full thinking-dot"></div>
+                    <div class="w-2 h-2 bg-purple-400 rounded-full thinking-dot"></div>
+                    <div class="w-2 h-2 bg-purple-300 rounded-full thinking-dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="error-view" class="hidden text-center glass-dark p-10 rounded-3xl border-2 border-red-500/30 max-w-lg shake fade-in">
+             <div class="w-16 h-16 mx-auto mb-6 bg-red-500/20 rounded-full flex items-center justify-center">
+                <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+             </div>
+             <h3 class="text-2xl font-bold text-red-400 mb-3">Analysis Failed</h3>
+             <p id="error-message" class="text-gray-300 mb-6">We couldn't analyze your document. Please check the file and try again.</p>
+             <button onclick="window.location.reload()" class="btn-primary text-white font-bold py-3 px-8 rounded-xl">
+                <span class="flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <span>Try Again</span>
+                </span>
+             </button>
+        </div>
+
+        <div id="analysis-view" class="hidden w-full h-full flex-grow flex fade-in">
+            <div id="pdf-container" class="w-3/5 glass-dark rounded-2xl flex flex-col card-enter">
+                <div class="bg-gradient-to-r from-purple-600/20 to-pink-600/20 p-4 border-b border-purple-500/20 rounded-t-2xl">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h2 id="file-name" class="text-lg font-semibold text-white truncate">document.pdf</h2>
+                    </div>
+                </div>
+                <div class="flex-grow p-2">
+                    <embed id="pdf-viewer" src="" type="application/pdf" class="w-full h-full rounded-xl"/>
+                </div>
+            </div>
+
+            <div id="resizer" class="resizer mx-2"></div>
+
+            <div id="analysis-container" class="w-2/5 flex flex-col space-y-6">
+                <div id="analysis-content-wrapper" class="glass-dark rounded-2xl p-6 custom-scrollbar overflow-y-auto card-enter" style="max-height: 60vh;">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">AI Analysis</h3>
+                    </div>
+                    
+                    <div class="mb-6 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl border border-blue-500/20 hover-lift">
+                        <h4 class="text-lg font-semibold text-blue-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Simple Summary
+                        </h4>
+                        <p id="summary-content" class="text-gray-200 leading-relaxed"></p>
+                    </div>
+                    
+                    <div class="mb-6 p-4 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 rounded-xl border border-orange-500/20 hover-lift">
+                        <h4 class="text-lg font-semibold text-orange-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            Risk/Benefit Analysis
+                        </h4>
+                        <ul id="risks-benefits-list" class="space-y-3"></ul>
+                    </div>
+                    
+                    <div class="p-4 bg-gradient-to-r from-green-500/10 to-teal-500/10 rounded-xl border border-green-500/20 hover-lift">
+                        <h4 class="text-lg font-semibold text-green-300 mb-3 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                            </svg>
+                            Key Clauses Explained
+                        </h4>
+                        <ul id="key-clauses-list" class="space-y-4"></ul>
+                    </div>
+                </div>
+
+                <div class="flex-grow glass-dark rounded-2xl flex flex-col card-enter">
+                    <div class="p-4 border-b border-purple-500/20 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-t-2xl">
+                        <h3 class="text-lg font-bold text-white flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                            Chat About This Document
+                        </h3>
+                    </div>
+                    <div id="chat-history" class="flex-grow p-4 space-y-4 overflow-y-auto custom-scrollbar">
+                   
+                    </div>
+                    <div class="p-4 border-t border-purple-500/20">
+                        <form id="chat-form" class="flex items-center space-x-3">
+                            <input id="chat-input" type="text" placeholder="Ask a follow-up question... (3 left)" class="flex-grow bg-slate-800/50 text-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-slate-700/50 disabled:opacity-50 transition-all duration-300 border border-slate-600/50">
+                            <button id="chat-submit-btn" type="submit" class="btn-primary p-3 rounded-xl disabled:bg-gray-500 disabled:cursor-not-allowed">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5z"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+
+        const uploadView = document.getElementById('upload-view');
+        const loadingView = document.getElementById('loading-view');
+        const errorView = document.getElementById('error-view');
+        const errorMessage = document.getElementById('error-message');
+        const analysisView = document.getElementById('analysis-view');
+        const fileUpload = document.getElementById('file-upload');
+        const fileName = document.getElementById('file-name');
+        const pdfViewer = document.getElementById('pdf-viewer');
+        const downloadBtn = document.getElementById('download-btn');
+
+        const summaryContent = document.getElementById('summary-content');
+        const risksBenefitsList = document.getElementById('risks-benefits-list');
+        const keyClausesList = document.getElementById('key-clauses-list');
+        
+        const resizer = document.getElementById('resizer');
+        const pdfContainer = document.getElementById('pdf-container');
+        const analysisContainer = document.getElementById('analysis-container');
+
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatSubmitBtn = document.getElementById('chat-submit-btn');
+        const chatHistory = document.getElementById('chat-history');
+
+        let documentFullText = ''; 
+        let questionCount = 0;
+        const MAX_QUESTIONS = 3;
+        let currentAnalysisData = null;
+        let currentFileName = '';
+
+        function switchView(hideElement, showElement, callback = null) {
+            if (hideElement) {
+                hideElement.classList.add('fade-out');
+                setTimeout(() => {
+                    hideElement.classList.add('hidden');
+                    hideElement.classList.remove('fade-out');
+                    if (showElement) {
+                        showElement.classList.remove('hidden');
+                        showElement.classList.add('fade-in');
+                        setTimeout(() => {
+                            showElement.classList.remove('fade-in');
+                            if (callback) callback();
+                        }, 600);
+                    }
+                }, 400);
+            } else if (showElement) {
+                showElement.classList.remove('hidden');
+                showElement.classList.add('fade-in');
+                setTimeout(() => {
+                    showElement.classList.remove('fade-in');
+                    if (callback) callback();
+                }, 600);
+            }
+        }
+
+        fileUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                handleFile(file);
+            } else {
+                const uploadLabel = document.querySelector('label[for="file-upload"]');
+                uploadLabel.classList.add('shake');
+                uploadLabel.innerHTML = `
+                    <span class="flex items-center space-x-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                        <span>Please select a valid PDF</span>
+                    </span>
+                `;
+                setTimeout(() => {
+                    uploadLabel.classList.remove('shake');
+                    uploadLabel.innerHTML = `
+                        <span class="flex items-center space-x-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <span>Choose PDF File</span>
+                        </span>
+                    `;
+                }, 2000);
+            }
+        });
+
+        async function handleFile(file) {
+            switchView(uploadView, loadingView);
+            
+            try {
+                documentFullText = await extractTextFromPdf(file);
+                
+                const formData = new FormData();
+                formData.append('pdf_file', file);
+                
+                const response = await fetch('http://127.0.0.1:5000/analyze', { 
+                    method: 'POST', 
+                    body: formData 
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const analysisData = await response.json();
+                currentAnalysisData = analysisData;
+                currentFileName = file.name;
+                
+                switchView(loadingView, analysisView, () => {
+                    displayAnalysis(analysisData, file);
+                });
+
+            } catch (error) {
+                console.error('Analysis failed:', error);
+                errorMessage.textContent = error.message.includes('fetch') 
+                    ? 'Could not connect to the analysis server. Please check your connection.'
+                    : 'Analysis failed. Please try again with a different file.';
+                switchView(loadingView, errorView);
+            }
+        }
+        
+        async function extractTextFromPdf(file) {
+            const pdfjsLib = window['pdfjs-dist/build/pdf'];
+            pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js`;
+            const loadingTask = pdfjsLib.getDocument(URL.createObjectURL(file));
+            const pdf = await loadingTask.promise;
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                fullText += textContent.items.map(item => item.str).join(' ') + '\n';
+            }
+            return fullText;
+        }
+
+        function displayAnalysis(data, file) {
+            setTimeout(() => {
+                summaryContent.textContent = data.summary;
+                summaryContent.parentElement.classList.add('card-enter');
+            }, 200);
+
+            setTimeout(() => {
+                risksBenefitsList.innerHTML = ''; 
+                data.risks_benefits.forEach((item, index) => {
+                    const isRisk = item.type.toLowerCase() === 'risk';
+                    const color = isRisk ? '#f59e0b' : '#3b82f6';
+                    const bgColor = isRisk ? 'from-amber-500/10 to-red-500/10' : 'from-blue-500/10 to-green-500/10';
+                    const borderColor = isRisk ? 'border-amber-500/20' : 'border-blue-500/20';
+                    
+                    const icon = isRisk ? 
+                        `<svg class="w-5 h-5" style="color: ${color}" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>` :
+                        `<svg class="w-5 h-5" style="color: ${color}" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>`;
+                    
+                    const li = document.createElement('li');
+                    li.className = `flex items-start p-3 rounded-lg bg-gradient-to-r ${bgColor} border ${borderColor} hover-lift message-enter`;
+                    li.style.animationDelay = `${index * 0.1}s`;
+                    li.innerHTML = `
+                        <div class="mr-3 mt-1 flex-shrink-0">${icon}</div>
+                        <p class="text-gray-200 leading-relaxed">${item.text}</p>
+                    `;
+                    risksBenefitsList.appendChild(li);
+                });
+                risksBenefitsList.parentElement.classList.add('card-enter');
+            }, 400);
+            
+            setTimeout(() => {
+                keyClausesList.innerHTML = '';
+                data.key_clauses.forEach((clause, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'bg-gradient-to-r from-slate-800/50 to-slate-700/50 p-4 rounded-xl border border-slate-600/30 hover-lift message-enter';
+                    li.style.animationDelay = `${index * 0.1}s`;
+                    li.innerHTML = `
+                        <div class="flex items-center mb-2">
+                            <div class="w-2 h-2 bg-purple-400 rounded-full mr-2"></div>
+                            <p class="font-semibold text-purple-300">${clause.term}</p>
+                        </div>
+                        <p class="text-gray-200 leading-relaxed pl-4">${clause.definition}</p>
+                    `;
+                    keyClausesList.appendChild(li);
+                });
+                keyClausesList.parentElement.classList.add('card-enter');
+            }, 600);
+
+            fileName.textContent = file.name;
+            pdfViewer.src = URL.createObjectURL(file);
+            downloadBtn.classList.remove('hidden');
+        }
+        let isResizing = false;
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', () => {
+                isResizing = false;
+                document.body.style.cursor = '';
+                document.removeEventListener('mousemove', handleMouseMove);
+            });
+        });
+
+        function handleMouseMove(e) {
+            if (!isResizing) return;
+            const totalWidth = analysisView.offsetWidth;
+            const newLeftWidth = e.clientX - analysisView.offsetLeft;
+            const newRightWidth = totalWidth - newLeftWidth - resizer.offsetWidth;
+
+            if (newLeftWidth > 200 && newRightWidth > 200) {
+                pdfContainer.style.width = `${newLeftWidth}px`;
+                analysisContainer.style.width = `${newRightWidth}px`;
+            }
+        }
+        
+        chatForm.addEventListener('submit', handleChatSubmit);
+
+        async function handleChatSubmit(event) {
+            event.preventDefault();
+            if (questionCount >= MAX_QUESTIONS) return;
+
+            const userQuestion = chatInput.value.trim();
+            if (!userQuestion) return;
+
+            appendChatMessage(userQuestion, 'user');
+            chatInput.value = '';
+
+            const thinkingIndicator = appendThinkingMessage();
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question: userQuestion,
+                        document_text: documentFullText
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                thinkingIndicator.remove();
+                appendChatMessage(data.answer, 'ai');
+
+            } catch (error) {
+                console.error('Chat error:', error);
+                thinkingIndicator.remove();
+                appendChatMessage('Sorry, I couldn\'t get an answer. Please try again.', 'ai', true);
+            } finally {
+                questionCount++;
+                updateChatUI();
+            }
+        }
+
+        function updateChatUI() {
+            const questionsLeft = MAX_QUESTIONS - questionCount;
+            if (questionsLeft <= 0) {
+                chatInput.placeholder = "You have reached your question limit.";
+                chatInput.disabled = true;
+                chatSubmitBtn.disabled = true;
+                chatInput.classList.add('opacity-50');
+                chatSubmitBtn.classList.add('opacity-50');
+            } else {
+                chatInput.placeholder = `Ask a follow-up question... (${questionsLeft} left)`;
+            }
+        }
+
+        function appendChatMessage(message, sender, isError = false) {
+            const messageDiv = document.createElement('div');
+            const isUser = sender === 'user';
+            
+            messageDiv.className = `max-w-xs md:max-w-md p-4 rounded-2xl message-enter ${
+                isUser 
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white self-end ml-auto shadow-lg' 
+                    : isError
+                        ? 'bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/30 text-red-200 self-start'
+                        : 'bg-gradient-to-r from-slate-700/50 to-slate-600/50 border border-slate-500/30 text-gray-200 self-start'
+            }`;
+            
+            if (isUser) {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start space-x-2">
+                        <div class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <p class="leading-relaxed">${message}</p>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start space-x-2">
+                        <div class="w-6 h-6 bg-purple-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <p class="leading-relaxed">${message}</p>
+                    </div>
+                `;
+            }
+            
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            return messageDiv;
+        }
+
+        function appendThinkingMessage() {
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = 'max-w-xs p-4 rounded-2xl bg-gradient-to-r from-slate-700/50 to-slate-600/50 border border-slate-500/30 self-start message-enter';
+            
+            thinkingDiv.innerHTML = `
+                <div class="flex items-start space-x-2">
+                    <div class="w-6 h-6 bg-purple-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <div class="w-2 h-2 bg-purple-400 rounded-full thinking-dot"></div>
+                        <div class="w-2 h-2 bg-purple-400 rounded-full thinking-dot"></div>
+                        <div class="w-2 h-2 bg-purple-400 rounded-full thinking-dot"></div>
+                    </div>
+                </div>
+            `;
+            
+            chatHistory.appendChild(thinkingDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            return thinkingDiv;
+        }
+
+downloadBtn.addEventListener('click', () => {
+            if (currentAnalysisData) {
+                generateAnalysisPDF(currentAnalysisData, currentFileName);
+            }
+        });
+
+        function generateAnalysisPDF(data, originalFileName) {
+            const doc = new jsPDF();
+            let y = 0; 
+            const pageMargin = 15;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const usableWidth = pageWidth - (pageMargin * 2);
+            const today = new Date().toLocaleDateString();
+
+            const primaryAccent = '#8B5CF6';
+            const riskColor = '#F59E0B'; 
+            const benefitColor = '#3B82F6';
+            const textColor = '#1A1A1A'; 
+            const lightTextColor = '#4B5563'; 
+            const backgroundColor = '#F3F4F6'; 
+
+            const checkPageBreak = (neededHeight) => {
+                if (y + neededHeight > 280) { 
+                    doc.addPage();
+                    y = pageMargin;
+                }
+            };
+
+            doc.setFillColor(textColor);
+            doc.rect(0, 0, pageWidth, 40, 'F');
+            doc.setFontSize(24);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor('#FFFFFF');
+            doc.text("Un-Law", pageMargin, 20);
+            doc.setFontSize(14);
+            doc.setTextColor('#E5E7EB');
+            doc.text(" AI Legal Analysis Report", pageMargin, 28);
+            y = 50;
+
+            doc.setTextColor(textColor);
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text("Analysis For:", pageMargin, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(originalFileName, pageMargin + 35, y);
+            
+            doc.setFont("helvetica", "bold");
+            doc.text("Date:", pageWidth - pageMargin - 30, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(today, pageWidth - pageMargin, y, { align: 'right' });
+            y += 15;
+            
+            const drawSection = (title, contentFn) => {
+                checkPageBreak(30); 
+                doc.setFontSize(18);
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(primaryAccent);
+                doc.text(title, pageMargin, y);
+                doc.setDrawColor(primaryAccent);
+                doc.setLineWidth(0.5);
+                doc.line(pageMargin, y + 2, pageMargin + 30, y + 2);
+                y += 12;
+                contentFn();
+                y += 10; 
+            };
+
+            drawSection("Simple Summary", () => {
+                doc.setFontSize(11);
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(lightTextColor);
+                const summaryLines = doc.splitTextToSize(data.summary, usableWidth);
+                checkPageBreak(summaryLines.length * 5);
+                doc.text(summaryLines, pageMargin, y);
+                y += summaryLines.length * 5;
+            });
+
+            drawSection("Risk / Benefit Analysis", () => {
+                doc.setFontSize(11);
+                data.risks_benefits.forEach(item => {
+                    const isRisk = item.type.toLowerCase() === 'risk';
+                    const color = isRisk ? riskColor : benefitColor;
+                    const prefix = isRisk ? 'Risk:' : 'Benefit:';
+                    
+                    const itemLines = doc.splitTextToSize(item.text, usableWidth - 25);
+                    checkPageBreak(itemLines.length * 5 + 5);
+
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(color);
+                    doc.text(prefix, pageMargin, y);
+
+                    doc.setFont("helvetica", "normal");
+                    doc.setTextColor(lightTextColor);
+                    doc.text(itemLines, pageMargin + 18, y);
+                    y += itemLines.length * 5 + 5;
+                });
+            });
+            drawSection("Key Clauses Explained", () => {
+                data.key_clauses.forEach(clause => {
+                    const definitionLines = doc.splitTextToSize(clause.definition, usableWidth);
+                    checkPageBreak(definitionLines.length * 5 + 10);
+                    
+                    doc.setFillColor(backgroundColor);
+                    doc.roundedRect(pageMargin, y - 5, usableWidth, definitionLines.length * 5 + 12, 3, 3, 'F');
+                    
+                    doc.setFontSize(12);
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(textColor);
+                    doc.text(clause.term, pageMargin + 3, y);
+                    y += 7;
+                    
+                    doc.setFontSize(11);
+                    doc.setFont("helvetica", "normal");
+                    doc.setTextColor(lightTextColor);
+                    doc.text(definitionLines, pageMargin + 3, y);
+                    y += definitionLines.length * 5 + 8;
+                });
+            });
+
+            doc.save(`Un-Law_Analysis_${originalFileName}.pdf`);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const rate = scrolled * -0.5;
+                document.body.style.backgroundPosition = `center ${rate}px`;
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    if (e.key === 's' && currentAnalysisData) {
+                        e.preventDefault();
+                        downloadBtn.click();
+                    }
+                }
+                if (e.key === 'Escape' && !uploadView.classList.contains('hidden')) {
+                    fileUpload.value = '';
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
