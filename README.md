@@ -1,4 +1,4 @@
-# Un-Law ⚖️ - AI Legal Document Analyzer ([text](https://un-law-1.onrender.com/))
+# Un-Law ⚖️ - AI Legal Document Analyzer ([Click here](https://un-law-1.onrender.com/))
 
 Un-Law is a web application designed to demystify complex legal documents. Powered by Google's Gemini API, this tool provides clear, concise, and actionable insights from dense legal texts, empowering individuals to understand contracts, agreements, and terms of service before they sign.
 
