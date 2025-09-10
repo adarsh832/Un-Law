@@ -1,4 +1,4 @@
-# Un-Law ⚖️ - AI Legal Document Analyzer
+# Un-Law ⚖️ - AI Legal Document Analyzer ([text](https://un-law-1.onrender.com/))
 
 Un-Law is a web application designed to demystify complex legal documents. Powered by Google's Gemini API, this tool provides clear, concise, and actionable insights from dense legal texts, empowering individuals to understand contracts, agreements, and terms of service before they sign.
 
@@ -82,34 +82,6 @@ Un-Law is a web application designed to demystify complex legal documents. Power
 4. **Access the Application**
    Open your browser and navigate to:  
    👉 http://localhost:8000
-
----
-
-## ☁️ Deployment on Render
-
-### Part 1: Deploying the Python Backend (Web Service)
-
-1. **Add Gunicorn**: Add this line to your `requirements.txt`:
-   ```
-   gunicorn
-   ```
-2. **Push to GitHub**: Create a new repository and push your files.
-3. **Create a Render Account**: Sign up at [Render](https://render.com).
-4. **Deploy Backend**:
-   - Name: `un-law-backend`
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `gunicorn main:app`
-   - Add environment variable: `GEMINI_API_KEY=YOUR_API_KEY`
-5. **Copy Backend URL** once deployed.
-
-### Part 2: Deploying the Frontend (Static Site)
-
-1. Update API URLs in `index.html` (replace `http://127.0.0.1:5000` with your Render backend URL).
-2. Commit & push changes.
-3. Deploy as a **Static Site** on Render.
-   - Name: `un-law-frontend`
-   - Render will serve your `index.html`.
-4. Access your live app at the provided Render URL.
 
 ---
 
