@@ -132,7 +132,10 @@ def chat_with_document():
     except Exception as e:
         print(f"!!! Chat error: {e} !!!")
         return jsonify({"error": "Failed to get a response from the AI model."}), 500
-
+@app.route("/health")
+def health_check():
+    """A simple endpoint for uptime monitoring."""
+    return jsonify(status="ok"), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
